@@ -1,0 +1,7 @@
+{
+    "C_Cpp.errorSquiggles": "EnabledIfIncludesResolve",
+    "files.associations": {
+        "stdio.h": "c",
+        "time.h": "c"
+    }
+}
