@@ -24,7 +24,6 @@ int main(int argc, char const *argv[])
     map_GenerateObstacle(&map, &pathBuffer);
     map_correction(&map);
     // map_print(map, pathBuffer);
-    map_texturing(&map);
     export_map(&map, argv[4]);
     // system("pause");
 

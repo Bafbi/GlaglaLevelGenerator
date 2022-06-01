@@ -33,7 +33,7 @@ int export_map(Map *map, const char *fileName)
     FILE *file_data;
     file_data = open_file(file_data, fileName, "w+");
 
-    const char *header = "{\n\t\"header\": {\n\t\"width\": %d,\n\t\"height\" : %d,\n\t \"diff\" : %2d\n\t},\n\t";
+    const char *header = "{\n\n\"width\": %d,\n\"height\" : %d,\n \"diff\" : %2d\n,\n";
     char *header_buff = (char *)calloc(strlen(header), sizeof(char));
     sprintf(header_buff, header, map->size.x, map->size.y, map->diff);
     fprintf(file_data, "%s", header_buff);
@@ -46,7 +46,6 @@ int export_map(Map *map, const char *fileName)
     int _data_size = 6 * map->size.x * map->size.y + 1;
 
     char *data_buffer = (char *)calloc(_data_size, sizeof(char));
-    char *texture_buffer = (char *)calloc(_data_size, sizeof(char));
     int last_mazeblock_index = map->size.y * map->size.x;
     char *default_parsing_string = "%3s,";
     char *_default_parsing_string;
@@ -56,7 +55,6 @@ int export_map(Map *map, const char *fileName)
         for (int x = 0; x < map->size.x; x++)
         {
             char c_buffer[6];
-            char t_buffer[6];
             _default_parsing_string = default_parsing_string;
 
             if ((y + 1) * (1 + x) == last_mazeblock_index)
@@ -72,23 +70,14 @@ int export_map(Map *map, const char *fileName)
             {
                 printf("\nerror data");
             }
-            //////////////
-            if (0 > sprintf(t_buffer, _default_parsing_string, int_to_char(map->texture[vec2_calcMapIndex(new_vec2(x, y), map->size.x)])))
-            {
-                printf("\nerror in sprintf");
-            }
-            if (strcat(texture_buffer, t_buffer) == NULL)
-            {
-                printf("\nerror texture");
-            }
         }
     }
 
-    char *body = "\"body\":{\n\t\t%s,\"texture\":[%s],\"data\":[%s]}}";
+    char *body = "\n%s,\"data\":[%s]}";
     int body_size = strlen(body) + 2 * strlen(data_buffer) + strlen(footer_buff);
     char *body_buff = (char *)calloc(body_size, sizeof(char));
 
-    if (0 > sprintf(body_buff, body, footer_buff, texture_buffer, data_buffer))
+    if (0 > sprintf(body_buff, body, footer_buff, data_buffer))
     {
         printf("error in sprintf_s");
     }

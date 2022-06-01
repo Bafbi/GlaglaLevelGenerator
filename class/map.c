@@ -15,19 +15,6 @@ typedef enum Obstacle
     OB_ROCK = 0,
     OB_ARROW = 1
 } Obstacle;
-typedef enum Texture
-{
-    TX_GROUND = 3,
-    TX_WALL_UP = 8,
-    TX_WALL_UP_LEFT = 19,
-    TX_WALL_UP_RIGHT = 9,
-    TX_WALL_DOWN = 13,
-    TX_WALL_DOWN_LEFT = 17,
-    TX_WALL_DOWN_RIGHT = 18,
-    TX_WALL_LEFT = 14,
-    TX_WALL_RIGHT = 24,
-    TX_ICY = 6,
-} Texture;
 
 typedef struct Map
 {
@@ -48,7 +35,7 @@ Map new_map(Vec2 size, Difficulty diff)
     map.diff = diff;
     map.size = size;
     map.start.x = (rand() % (map.size.x - 2)) + 1;
-    map.start.y = rand() % 2 ? 1 : map.size.y - 2;
+    map.start.y = rand() % 2 ? 0 : map.size.y - 1;
     map.end = new_vec2(0, 0);
     array_fill(map.data, map.size.x * map.size.y, OB_ICY);
     return map;
@@ -56,20 +43,9 @@ Map new_map(Vec2 size, Difficulty diff)
 
 void map_correction(Map *map)
 {
-    for (int x = 0; x < map->size.x; x++)
-    {
-        map->data[vec2_calcMapIndex(new_vec2(x, 0), map->size.x)] = OB_WALL;
-        map->data[vec2_calcMapIndex(new_vec2(x, map->size.y - 1), map->size.x)] = OB_WALL;
-    }
-    for (int y = 0; y < map->size.y; y++)
-    {
-        map->data[vec2_calcMapIndex(new_vec2(0, y), map->size.x)] = OB_WALL;
-        map->data[vec2_calcMapIndex(new_vec2(map->size.x - 1, y), map->size.x)] = OB_WALL;
-    }
     int startIndex = vec2_calcMapIndex(map->start, map->size.x);
     map->data[startIndex] = OB_GROUND;
-    map->data[startIndex + 1] = OB_GROUND;
-    map->data[startIndex - 1] = OB_GROUND;
+
     map->data[vec2_calcMapIndex(map->end, map->size.x)] = OB_GROUND;
 }
 
@@ -189,46 +165,6 @@ void map_GenerateObstacle(Map *map, PathBuffer *pathBuffer)
         Vec2 randPoint = new_randVec2(new_vec2(0, 0), map->size);
         !pathBuffer_findTest(*pathBuffer, randPoint) ? map->data[vec2_calcMapIndex(randPoint, map->size.x)] = OB_ROCK : i--;
     }
-}
-
-void map_texturing(Map *map)
-{
-    for (int i = 0; i < map->size.x * map->size.y; i++)
-    {
-        switch (map->data[i])
-        {
-        case OB_GROUND:
-            map->texture[i] = TX_GROUND;
-            break;
-        case OB_ARROW:
-        case OB_ICY:
-            map->texture[i] = TX_ICY;
-            break;
-
-        default:
-            map->texture[i] = TX_ICY;
-            break;
-        }
-    }
-    for (int x = 1; x < map->size.x - 1; x++)
-    {
-        map->texture[vec2_calcMapIndex(new_vec2(x, 0), map->size.x)] = TX_WALL_UP;
-        map->texture[vec2_calcMapIndex(new_vec2(x, map->size.y - 1), map->size.x)] = TX_WALL_DOWN;
-    }
-    for (int y = 1; y < map->size.y - 1; y++)
-    {
-        map->texture[vec2_calcMapIndex(new_vec2(0, y), map->size.x)] = TX_WALL_RIGHT;
-        map->texture[vec2_calcMapIndex(new_vec2(map->size.x - 1, y), map->size.x)] = TX_WALL_LEFT;
-    }
-    map->texture[vec2_calcMapIndex(new_vec2(0, 0), map->size.x)] = TX_WALL_UP_LEFT;
-    map->texture[vec2_calcMapIndex(new_vec2(map->size.x - 1, 0), map->size.x)] = TX_WALL_UP_RIGHT;
-    map->texture[vec2_calcMapIndex(new_vec2(0, map->size.y - 1), map->size.x)] = TX_WALL_DOWN_LEFT;
-    map->texture[vec2_calcMapIndex(new_vec2(map->size.x - 1, map->size.y - 1), map->size.x)] = TX_WALL_DOWN_RIGHT;
-    int startIndex = vec2_calcMapIndex(map->start, map->size.x);
-    map->texture[startIndex] = TX_GROUND;
-    map->texture[startIndex + 1] = TX_GROUND;
-    map->texture[startIndex - 1] = TX_GROUND;
-    map->texture[vec2_calcMapIndex(map->end, map->size.x)] = TX_GROUND;
 }
 
 void map_print(Map map, PathBuffer pathBuffer)
